@@ -2,7 +2,6 @@ package com.michaelsebero.shadeless;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -22,6 +21,8 @@ public class ShadelessMobs {
     public static final String NAME = "Shadeless Mobs";
     public static final String VERSION = "1.0";
     
+    private RenderManager renderManager;
+    
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
@@ -31,8 +32,8 @@ public class ShadelessMobs {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     @SideOnly(Side.CLIENT)
     public void onRenderLivingPre(RenderLivingEvent.Pre<EntityLivingBase> event) {
-        if (shouldProcessEntity(event.getEntity())) {
-            // Disable lighting for entity rendering
+        // Simple null check - event.getEntity() is never null in practice
+        if (event.getEntity() != null) {
             GlStateManager.disableLighting();
         }
     }
@@ -40,32 +41,9 @@ public class ShadelessMobs {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     @SideOnly(Side.CLIENT)
     public void onRenderLivingPost(RenderLivingEvent.Post<EntityLivingBase> event) {
-        if (shouldProcessEntity(event.getEntity())) {
-            // Re-enable lighting after entity rendering
+        // Simple null check - event.getEntity() is never null in practice
+        if (event.getEntity() != null) {
             GlStateManager.enableLighting();
-        }
-    }
-    
-    private boolean shouldProcessEntity(Entity entity) {
-        if (entity == null) {
-            return false;
-        }
-        
-        // Check if we can safely get the renderer
-        try {
-            RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
-            if (renderManager == null) {
-                return false;
-            }
-            
-            Render<Entity> renderer = renderManager.getEntityRenderObject(entity);
-            if (renderer == null) {
-                return false;
-            }
-            
-            return true;
-        } catch (Exception e) {
-            return false;
         }
     }
 }
